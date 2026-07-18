@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Enforce open access for event orientation activity.
+    // In a production corporate app, you would secure this, but for a local/orientation bypass setup,
+    // we allow public read/write for convenience.
+    match /participants/{document} {
+      allow read, write: if true;
+    }
+    match /entries/{document} {
+      allow read, write: if true;
+    }
+    match /settings/{document} {
+      allow read, write: if true;
+    }
+  }
+}
