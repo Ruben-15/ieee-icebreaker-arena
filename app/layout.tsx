@@ -16,10 +16,16 @@ export const metadata: Metadata = {
   description:
     "A real-time networking platform for IEEE Student Branch orientations. Break the ice, make connections, climb the leaderboard!",
   keywords: ["IEEE", "networking", "icebreaker", "student branch", "orientation"],
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+    shortcut: "/icon.png",
+  },
   openGraph: {
     title: "IEEE Icebreaker Arena",
     description: "Real-time networking platform for IEEE Student Branch orientations",
     type: "website",
+    images: ["/icon.png"],
   },
 };
 
