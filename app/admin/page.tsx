@@ -21,17 +21,17 @@ function StatCard({ icon: Icon, label, value, sub, color, delay = 0 }: {
 }) {
   return (
     <motion.div
-      className="glass-card p-5"
+      className="glass-card p-4 sm:p-5"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
     >
-      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-4 shadow-md`}>
-        <Icon className="w-5 h-5 text-white" />
+      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3 shadow-md`}>
+        <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
       </div>
-      <div className="text-3xl font-black gradient-text mb-1">{value}</div>
-      <p className="text-sm font-semibold text-white/80">{label}</p>
-      {sub && <p className="text-xs text-white/40 mt-0.5">{sub}</p>}
+      <div className="text-2xl sm:text-3xl font-black gradient-text mb-0.5 truncate">{value}</div>
+      <p className="text-xs sm:text-sm font-semibold text-white/80 leading-tight">{label}</p>
+      {sub && <p className="text-[10px] sm:text-xs text-white/40 mt-0.5 leading-tight">{sub}</p>}
     </motion.div>
   );
 }
@@ -133,14 +133,14 @@ export default function AdminDashboard() {
   const liveParticipants = participants.filter(p => p.joinedAt > activeTime).length;
 
   return (
-    <div className="p-6 md:p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black mb-1">Admin Dashboard</h1>
-        <p className="text-white/40">Real-Time Event Control & Live Metrics</p>
+    <div className="p-4 sm:p-6 md:p-8">
+      <div className="mb-5 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-black mb-1">Admin Dashboard</h1>
+        <p className="text-white/40 text-sm">Real-Time Event Control &amp; Live Metrics</p>
       </div>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      {/* Metrics Cards — 2 col on all screens, 3 col on lg+ */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-5 sm:mb-8">
         <StatCard
           icon={Users}
           label="Total Participants"
