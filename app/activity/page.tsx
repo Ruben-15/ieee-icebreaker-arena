@@ -126,10 +126,7 @@ export default function ActivityPage() {
   }
 
   function handleEditClick(entry: Entry) {
-    if (isEnded || !isActive) {
-      toast.error('Cannot edit connections when activity is paused or ended');
-      return;
-    }
+    // Always open the modal — modal shows read-only view when paused/ended
     setEditingEntry(entry);
     setEditName(entry.personName);
     setEditDept(entry.personDepartment);
