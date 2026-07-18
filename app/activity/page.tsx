@@ -202,7 +202,7 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#0a0f1e] text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#0a0f1e] text-white" style={{WebkitOverflowScrolling: 'touch'}}>
       {/* Background blobs */}
       <div className="aurora-bg opacity-40">
         <div className="aurora-blob" />
