@@ -380,7 +380,7 @@ export default function ActivityPage() {
             ) : entries.length === 0 ? (
               <p className="text-center text-white/30 text-xs py-6">No connections logged yet.</p>
             ) : (
-              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1 smooth-scroll">
                 {entries.map((entry) => (
                   <button
                     key={entry.id}

@@ -46,6 +46,9 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  /* Prevent horizontal scroll bounce on iOS */
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -56,6 +59,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  /* Smooth scroll on all containers including iOS */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
 }
 
 /* Custom scrollbar */
@@ -96,14 +102,16 @@ body {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
   border-radius: 1rem;
-  transition: all 0.3s ease;
+  /* Use opacity for transitions — avoids layout recalculation on mobile */
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  will-change: auto;
 }
 
 .glass-card:hover {
   background: var(--glass-hover);
   border-color: rgba(124, 58, 237, 0.3);
   box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
-  transform: translateY(-2px);
+  /* Removed translateY — causes layout reflow and jank on mobile */
 }
 
 /* ============================================================
@@ -137,6 +145,10 @@ body {
   filter: blur(140px);
   opacity: 0.28;
   mix-blend-mode: screen;
+  /* GPU acceleration — critical for smooth animation on mobile */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .aurora-blob:nth-child(1) {
@@ -335,14 +347,58 @@ body {
   to { opacity: 1; }
 }
 
-.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-float { 
+  animation: float 4s ease-in-out infinite;
+  will-change: transform;
+}
 .animate-shimmer {
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
-.animate-slide-up { animation: slide-up 0.5s ease forwards; }
-.animate-fade-in { animation: fade-in 0.3s ease forwards; }
+.animate-slide-up { 
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-fade-in { animation: fade-in 0.25s ease forwards; }
+
+/* Smooth scrollable lists — momentum scroll + no lag on touch */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  /* Containment avoids repainting parent on scroll */
+  contain: layout style;
+}
+
+/* Reduce aurora complexity on low-power / prefer-reduced-motion devices */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob {
+    animation: none !important;
+  }
+  .animate-float {
+    animation: none !important;
+  }
+  .animate-shimmer {
+    animation: none !important;
+  }
+}
+
+/* On mobile, reduce blur to prevent compositor layer overload */
+@media (max-width: 640px) {
+  .aurora-blob {
+    filter: blur(80px);
+    opacity: 0.18;
+  }
+  .glass {
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+  }
+  .glass-card {
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+  }
+}
 
 /* Skeleton loader */
 .skeleton {
@@ -401,8 +457,10 @@ body {
   color: white;
   padding: 0.75rem 1rem;
   width: 100%;
-  transition: all 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   outline: none;
+  /* Minimum 16px prevents iOS auto-zoom on input focus */
+  font-size: 16px;
 }
 
 .input-glass::placeholder {
