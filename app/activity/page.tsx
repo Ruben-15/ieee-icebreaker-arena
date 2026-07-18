@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useActivity } from '@/context/ActivityContext';
 import { createEntry, updateEntry, getParticipantEntries, getParticipant, updateParticipant } from '@/firebase/firestore';
 import { Entry, Participant } from '@/types';
-import { Zap, Clock, Users, LogOut, Loader2, Edit3, Save, X, PlusCircle } from 'lucide-react';
+import { Zap, Clock, Users, LogOut, Loader2, Edit3, Save, X, PlusCircle, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ActivityPage() {
@@ -383,22 +383,25 @@ export default function ActivityPage() {
             ) : entries.length === 0 ? (
               <p className="text-center text-white/30 text-xs py-6">No connections logged yet.</p>
             ) : (
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-                {entries.map((entry, idx) => (
-                  <div key={entry.id} className="flex items-center justify-between p-3 glass rounded-xl text-xs">
-                    <div>
-                      <p className="font-semibold text-white/90">{entry.personName}</p>
-                      <p className="text-[10px] text-white/40">{entry.personDepartment} · 📍 {entry.place}</p>
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {entries.map((entry) => (
+                  <button
+                    key={entry.id}
+                    onClick={() => handleEditClick(entry)}
+                    className="w-full flex items-center justify-between p-3 glass rounded-xl text-xs hover:bg-white/8 transition-all duration-200 text-left group"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold text-white/90 truncate">{entry.personName}</p>
+                      <p className="text-[10px] text-white/40 truncate">{entry.personDepartment} · 📍 {entry.place}</p>
                     </div>
-                    <button
-                      onClick={() => handleEditClick(entry)}
-                      disabled={isEnded || !isActive}
-                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
-                      title="Edit entry"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                    <div className="flex-shrink-0 ml-2 p-1.5 rounded-lg text-white/20 group-hover:text-white/60 transition-colors">
+                      {isActive && !isEnded ? (
+                        <Edit3 className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
+                    </div>
+                  </button>
                 ))}
               </div>
             )}
@@ -406,7 +409,7 @@ export default function ActivityPage() {
         </div>
       </div>
 
-      {/* Edit Entry Modal */}
+      {/* Connection Detail / Edit Modal */}
       <AnimatePresence>
         {editingEntry && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -424,98 +427,76 @@ export default function ActivityPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 35 }}
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-black flex items-center gap-2">
-                  <Edit3 className="w-5 h-5 text-purple-400" /> Edit Entry
+                  {isActive && !isEnded ? (
+                    <><Edit3 className="w-5 h-5 text-purple-400" /> Edit Connection</>
+                  ) : (
+                    <><Eye className="w-5 h-5 text-blue-400" /> Connection Details</>
+                  )}
                 </h3>
                 <button onClick={() => setEditingEntry(null)} className="p-1 text-white/40 hover:text-white">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveEdit} className="space-y-3 text-sm">
-                <div>
-                  <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={editName}
-                    onChange={e => setEditName(e.target.value)}
-                    className="input-glass"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Department</label>
-                  <input
-                    type="text"
-                    required
-                    value={editDept}
-                    onChange={e => setEditDept(e.target.value)}
-                    className="input-glass"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Place Met</label>
-                  <input
-                    type="text"
-                    required
-                    value={editPlace}
-                    onChange={e => setEditPlace(e.target.value)}
-                    className="input-glass"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Fav Colour</label>
-                    <input
-                      type="text"
-                      value={editColor}
-                      onChange={e => setEditColor(e.target.value)}
-                      className="input-glass"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Hobby</label>
-                    <input
-                      type="text"
-                      value={editHobby}
-                      onChange={e => setEditHobby(e.target.value)}
-                      className="input-glass"
-                    />
+              {/* READ-ONLY VIEW when paused/ended */}
+              {(!isActive || isEnded) ? (
+                <div className="space-y-3 text-sm">
+                  {[['Name', editingEntry.personName], ['Department', editingEntry.personDepartment], ['Place Met', editingEntry.place], ['Favourite Colour', editingEntry.favoriteColor], ['Hobby', editingEntry.hobby], ['Notes', editingEntry.notes]].map(([label, val]) =>
+                    val ? (
+                      <div key={label} className="glass rounded-xl px-4 py-3">
+                        <p className="text-[10px] text-white/40 uppercase tracking-wider font-medium mb-0.5">{label}</p>
+                        <p className="font-semibold text-white/90">{val}</p>
+                      </div>
+                    ) : null
+                  )}
+                  <div className="pt-2">
+                    <button
+                      onClick={() => setEditingEntry(null)}
+                      className="btn-glass w-full py-2.5 rounded-xl text-xs font-semibold"
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">More Details / Notes</label>
-                  <input
-                    type="text"
-                    value={editNotes}
-                    onChange={e => setEditNotes(e.target.value)}
-                    className="input-glass"
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setEditingEntry(null)}
-                    className="btn-glass flex-1 py-2.5 rounded-lg text-xs"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={savingEdit}
-                    className="btn-primary flex-1 py-2.5 rounded-lg text-xs flex items-center justify-center gap-1 font-bold"
-                  >
-                    {savingEdit ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <><Save className="w-3.5 h-3.5" /> Save</>
-                    )}
-                  </button>
-                </div>
-              </form>
+              ) : (
+                /* EDIT FORM when activity is active */
+                <form onSubmit={handleSaveEdit} className="space-y-3 text-sm">
+                  <div>
+                    <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Name</label>
+                    <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} className="input-glass" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Department</label>
+                    <input type="text" required value={editDept} onChange={e => setEditDept(e.target.value)} className="input-glass" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Place Met</label>
+                    <input type="text" required value={editPlace} onChange={e => setEditPlace(e.target.value)} className="input-glass" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Fav Colour</label>
+                      <input type="text" value={editColor} onChange={e => setEditColor(e.target.value)} className="input-glass" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Hobby</label>
+                      <input type="text" value={editHobby} onChange={e => setEditHobby(e.target.value)} className="input-glass" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Notes</label>
+                    <input type="text" value={editNotes} onChange={e => setEditNotes(e.target.value)} className="input-glass" />
+                  </div>
+                  <div className="flex gap-2 pt-3">
+                    <button type="button" onClick={() => setEditingEntry(null)} className="btn-glass flex-1 py-2.5 rounded-lg text-xs">Cancel</button>
+                    <button type="submit" disabled={savingEdit} className="btn-primary flex-1 py-2.5 rounded-lg text-xs flex items-center justify-center gap-1 font-bold">
+                      {savingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-3.5 h-3.5" /> Save</>}
+                    </button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </div>
         )}
