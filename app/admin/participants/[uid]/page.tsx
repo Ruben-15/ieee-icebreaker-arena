@@ -91,7 +91,7 @@ export default function ParticipantDetailPage() {
             {entries.length === 0 ? (
               <p className="text-white/30 text-sm text-center py-12">No connection forms logged yet.</p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1 smooth-scroll">
                 {entries.map((entry) => (
                   <div
                     key={entry.id}
