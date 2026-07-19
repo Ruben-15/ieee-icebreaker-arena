@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useActivity } from '@/context/ActivityContext';
 import { createEntry, updateEntry, getParticipantEntries, getParticipant, updateParticipant, subscribeParticipants } from '@/firebase/firestore';
 import { Entry, Participant } from '@/types';
-import { Zap, Clock, Users, LogOut, Loader2, Edit3, Save, X, PlusCircle, Eye, Camera, Trash2 } from 'lucide-react';
+import { Zap, Clock, Users, LogOut, Loader2, Edit3, Save, X, PlusCircle, Eye, Camera, Trash2, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ActivityPage() {
@@ -47,6 +47,7 @@ export default function ActivityPage() {
   const [editHobby, setEditHobby] = useState('');
   const [editNotes, setEditNotes] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<{ url: string; name: string } | null>(null);
 
   // Profile Edit State
   const [showProfileEdit, setShowProfileEdit] = useState(false);
@@ -596,7 +597,11 @@ export default function ActivityPage() {
               {(!isActive || isEnded) ? (
                 <div className="space-y-3 text-sm max-h-[70vh] overflow-y-auto smooth-scroll">
                   {editingEntry.selfieUrl && (
-                    <div className="rounded-xl overflow-hidden border border-white/10">
+                    <div
+                      onClick={() => setLightboxImage({ url: editingEntry.selfieUrl!, name: editingEntry.personName })}
+                      className="rounded-xl overflow-hidden border border-white/10 cursor-zoom-in hover:opacity-90 transition-opacity"
+                      title="Click to zoom / download"
+                    >
                       <img src={editingEntry.selfieUrl} alt="Selfie" className="w-full h-40 object-cover" />
                     </div>
                   )}
@@ -621,7 +626,11 @@ export default function ActivityPage() {
                 /* EDIT FORM when activity is active */
                 <form onSubmit={handleSaveEdit} className="space-y-3 text-sm max-h-[70vh] overflow-y-auto smooth-scroll pr-1">
                   {editingEntry.selfieUrl && (
-                    <div className="rounded-xl overflow-hidden border border-white/10 mb-3">
+                    <div
+                      onClick={() => setLightboxImage({ url: editingEntry.selfieUrl!, name: editingEntry.personName })}
+                      className="rounded-xl overflow-hidden border border-white/10 mb-3 cursor-zoom-in hover:opacity-90 transition-opacity"
+                      title="Click to zoom / download"
+                    >
                       <img src={editingEntry.selfieUrl} alt="Selfie" className="w-full h-40 object-cover" />
                     </div>
                   )}
@@ -736,6 +745,47 @@ export default function ActivityPage() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4">
+            <motion.div
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLightboxImage(null)}
+            />
+
+            <motion.div
+              className="relative z-10 max-w-lg w-full flex flex-col items-center gap-4"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="absolute -top-12 right-0 p-2 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="w-full rounded-2xl overflow-hidden border border-white/15 bg-black shadow-2xl">
+                <img src={lightboxImage.url} alt="Enlarged Selfie" className="w-full h-auto max-h-[70vh] object-contain mx-auto" />
+              </div>
+
+              <a
+                href={lightboxImage.url}
+                download={`selfie-${lightboxImage.name.replace(/\s+/g, '-').toLowerCase()}.jpg`}
+                className="btn-primary py-3 px-6 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-purple-500/20"
+              >
+                <Download className="w-4 h-4" /> Download Photo
+              </a>
             </motion.div>
           </div>
         )}
