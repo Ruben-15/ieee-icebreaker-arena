@@ -27,6 +27,7 @@ export interface Entry {
   favoriteColor: string;
   hobby: string;
   notes?: string;
+  selfieUrl?: string;  // base64 data URL from camera capture
   createdAt: number; // Unix ms
 }
 

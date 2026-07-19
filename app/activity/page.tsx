@@ -2,14 +2,14 @@
 // ============================================================
 // IEEE Icebreaker Arena — Participant Activity Logging Page
 // ============================================================
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useActivity } from '@/context/ActivityContext';
 import { createEntry, updateEntry, getParticipantEntries, getParticipant, updateParticipant } from '@/firebase/firestore';
 import { Entry, Participant } from '@/types';
-import { Zap, Clock, Users, LogOut, Loader2, Edit3, Save, X, PlusCircle, Eye } from 'lucide-react';
+import { Zap, Clock, Users, LogOut, Loader2, Edit3, Save, X, PlusCircle, Eye, Camera, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ActivityPage() {
@@ -29,6 +29,8 @@ export default function ActivityPage() {
   const [favoriteColor, setFavoriteColor] = useState('');
   const [hobby, setHobby] = useState('');
   const [notes, setNotes] = useState('');
+  const [selfieDataUrl, setSelfieDataUrl] = useState<string | null>(null);
+  const selfieInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Edit State
@@ -101,6 +103,7 @@ export default function ActivityPage() {
         favoriteColor: favoriteColor.trim(),
         hobby: hobby.trim(),
         notes: notes.trim(),
+        selfieUrl: selfieDataUrl ?? undefined,
       });
 
       toast.success(`Logged connection with ${personName}! 🤝`);
@@ -112,6 +115,7 @@ export default function ActivityPage() {
       setFavoriteColor('');
       setHobby('');
       setNotes('');
+      setSelfieDataUrl(null);
 
       // Refresh list
       const list = await getParticipantEntries(participant!.uid);
@@ -337,6 +341,61 @@ export default function ActivityPage() {
                 />
               </div>
 
+              {/* Selfie Section */}
+              <div>
+                <label className="block text-[11px] text-white/50 mb-2 font-medium uppercase tracking-wider">Selfie Together (Optional)</label>
+                <input
+                  ref={selfieInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                      toast.error('Photo too large. Max 5MB.');
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = ev => setSelfieDataUrl(ev.target?.result as string);
+                    reader.readAsDataURL(file);
+                  }}
+                />
+                {selfieDataUrl ? (
+                  <div className="relative group">
+                    <img
+                      src={selfieDataUrl}
+                      alt="Selfie preview"
+                      className="w-full h-36 object-cover rounded-xl border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => { setSelfieDataUrl(null); if (selfieInputRef.current) selfieInputRef.current.value = ''; }}
+                      className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white/70 hover:text-red-400 hover:bg-black/80 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => selfieInputRef.current?.click()}
+                      className="absolute bottom-2 right-2 p-1.5 bg-black/60 rounded-full text-white/70 hover:text-white hover:bg-black/80 transition-all text-[10px] flex items-center gap-1 px-2"
+                    >
+                      <Camera className="w-3 h-3" /> Retake
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => selfieInputRef.current?.click()}
+                    className="w-full h-24 glass rounded-xl border border-dashed border-white/15 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all flex flex-col items-center justify-center gap-2 text-white/40 hover:text-purple-300"
+                  >
+                    <Camera className="w-6 h-6" />
+                    <span className="text-xs font-medium">Tap to take a selfie together</span>
+                  </button>
+                )}
+              </div>
+
               <button
                 type="submit"
                 disabled={submitting || isEnded || !isActive}
@@ -439,7 +498,12 @@ export default function ActivityPage() {
 
               {/* READ-ONLY VIEW when paused/ended */}
               {(!isActive || isEnded) ? (
-                <div className="space-y-3 text-sm">
+                <div className="space-y-3 text-sm max-h-[70vh] overflow-y-auto smooth-scroll">
+                  {editingEntry.selfieUrl && (
+                    <div className="rounded-xl overflow-hidden border border-white/10">
+                      <img src={editingEntry.selfieUrl} alt="Selfie" className="w-full h-40 object-cover" />
+                    </div>
+                  )}
                   {[['Name', editingEntry.personName], ['Department', editingEntry.personDepartment], ['Place Met', editingEntry.place], ['Favourite Colour', editingEntry.favoriteColor], ['Hobby', editingEntry.hobby], ['Notes', editingEntry.notes]].map(([label, val]) =>
                     val ? (
                       <div key={label} className="glass rounded-xl px-4 py-3">
