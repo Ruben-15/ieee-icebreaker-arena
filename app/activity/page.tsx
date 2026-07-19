@@ -159,14 +159,14 @@ export default function ActivityPage() {
   }
 
   function handleEditClick(entry: Entry) {
-    // Always open the modal — modal shows read-only view when paused/ended
-    setEditingEntry(entry);
     setEditName(entry.personName);
     setEditDept(entry.personDepartment);
     setEditPlace(entry.place);
     setEditColor(entry.favoriteColor);
     setEditHobby(entry.hobby);
     setEditNotes(entry.notes || '');
+    // Always open the modal LAST to prevent empty values flashing on mount
+    setEditingEntry(entry);
   }
 
   async function handleSaveEdit(e: React.FormEvent) {
