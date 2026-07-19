@@ -563,18 +563,20 @@ export default function ActivityPage() {
         {editingEntry && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/75"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               onClick={() => setEditingEntry(null)}
             />
 
             <motion.div
-              className="relative z-10 w-full max-w-sm glass-card p-6 border border-white/10"
-              initial={{ scale: 0.95, opacity: 0, y: 35 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 35 }}
+              className="relative z-10 w-full max-w-sm bg-[#111625] p-6 rounded-2xl border border-white/10 shadow-2xl"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-black flex items-center gap-2">
@@ -656,18 +658,20 @@ export default function ActivityPage() {
         {showProfileEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/75"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               onClick={() => setShowProfileEdit(false)}
             />
 
             <motion.div
-              className="relative z-10 w-full max-w-sm glass-card p-6 border border-white/10"
-              initial={{ scale: 0.95, opacity: 0, y: 35 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 35 }}
+              className="relative z-10 w-full max-w-sm bg-[#111625] p-6 rounded-2xl border border-white/10 shadow-2xl"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-black flex items-center gap-2">
