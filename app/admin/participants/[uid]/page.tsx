@@ -49,7 +49,7 @@ export default function ParticipantDetailPage() {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-4xl text-white">
+    <div className="p-4 sm:p-6 md:p-8 max-w-4xl text-white pb-24 md:pb-8">
       <button onClick={() => router.back()} className="flex items-center gap-2 text-white/50 hover:text-white text-sm mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to list
       </button>
@@ -96,7 +96,7 @@ export default function ParticipantDetailPage() {
                   <div
                     key={entry.id}
                     onClick={() => setSelectedEntry(entry)}
-                    className="p-4 glass rounded-xl border border-white/5 flex flex-col sm:flex-row gap-4 relative overflow-hidden cursor-pointer hover:bg-white/8 hover:border-white/10 transition-all duration-200"
+                    className="p-3 sm:p-4 glass rounded-xl border border-white/5 flex gap-3 sm:gap-4 relative overflow-hidden cursor-pointer hover:bg-white/8 hover:border-white/10 transition-all duration-200"
                   >
                     {entry.selfieUrl && (
                       <div
@@ -104,7 +104,7 @@ export default function ParticipantDetailPage() {
                           e.stopPropagation();
                           setLightboxImage({ url: entry.selfieUrl!, name: entry.personName });
                         }}
-                        className="w-full sm:w-20 h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0 cursor-zoom-in hover:opacity-90 transition-opacity"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0 cursor-zoom-in hover:opacity-90 transition-opacity"
                         title="Click to zoom / download"
                       >
                         <img src={entry.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
@@ -192,18 +192,20 @@ export default function ParticipantDetailPage() {
         {selectedEntry && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-sm text-white">
             <motion.div
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/75"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               onClick={() => setSelectedEntry(null)}
             />
 
             <motion.div
-              className="relative z-10 w-full max-w-sm glass-card p-6 border border-white/10"
-              initial={{ scale: 0.95, opacity: 0, y: 35 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 35 }}
+              className="relative z-10 w-full max-w-sm bg-[#111625] p-6 rounded-2xl border border-white/10 shadow-2xl"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.18, ease: [0.215, 0.610, 0.355, 1.000] }}
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-black flex items-center gap-2">
