@@ -612,7 +612,12 @@ export default function ActivityPage() {
                 </div>
               ) : (
                 /* EDIT FORM when activity is active */
-                <form onSubmit={handleSaveEdit} className="space-y-3 text-sm">
+                <form onSubmit={handleSaveEdit} className="space-y-3 text-sm max-h-[70vh] overflow-y-auto smooth-scroll pr-1">
+                  {editingEntry.selfieUrl && (
+                    <div className="rounded-xl overflow-hidden border border-white/10 mb-3">
+                      <img src={editingEntry.selfieUrl} alt="Selfie" className="w-full h-40 object-cover" />
+                    </div>
+                  )}
                   <div>
                     <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Name</label>
                     <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} className="input-glass" />
