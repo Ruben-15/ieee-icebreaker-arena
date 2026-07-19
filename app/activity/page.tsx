@@ -533,9 +533,16 @@ export default function ActivityPage() {
                   <button
                     key={entry.id}
                     onClick={() => handleEditClick(entry)}
-                    className="w-full flex items-center justify-between p-3 glass rounded-xl text-xs hover:bg-white/8 transition-all duration-200 text-left group"
+                    className="w-full flex items-center gap-3 p-3 glass rounded-xl text-xs hover:bg-white/8 transition-all duration-200 text-left group"
                   >
-                    <div className="min-w-0">
+                    {entry.selfieUrl ? (
+                      <img src={entry.selfieUrl} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/10 flex-shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-white/30 font-bold flex-shrink-0 uppercase">
+                        {entry.personName.trim() ? entry.personName.trim().slice(0, 1) : '?'}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold text-white/90 truncate">{entry.personName}</p>
                       <p className="text-[10px] text-white/40 truncate">{entry.personDepartment} · 📍 {entry.place}</p>
                     </div>

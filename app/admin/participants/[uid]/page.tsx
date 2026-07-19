@@ -91,25 +91,32 @@ export default function ParticipantDetailPage() {
             ) : (
               <div className="space-y-4">
                 {entries.map((entry) => (
-                  <div key={entry.id} className="p-4 glass rounded-xl border border-white/5 flex flex-col gap-2 relative overflow-hidden">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-black text-base text-white/90">{entry.personName}</h3>
-                        <p className="text-xs text-purple-300 font-semibold uppercase mt-0.5">{entry.personDepartment} · 📍 {entry.place}</p>
+                  <div key={entry.id} className="p-4 glass rounded-xl border border-white/5 flex flex-col sm:flex-row gap-4 relative overflow-hidden">
+                    {entry.selfieUrl && (
+                      <div className="w-full sm:w-20 h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0">
+                        <img src={entry.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
                       </div>
-                      <span className="text-[10px] text-white/30 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> {new Date(entry.createdAt).toLocaleTimeString()}
-                      </span>
-                    </div>
+                    )}
+                    <div className="flex-1 flex flex-col gap-2 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <h3 className="font-black text-base text-white/90 truncate">{entry.personName}</h3>
+                          <p className="text-xs text-purple-300 font-semibold uppercase mt-0.5">{entry.personDepartment} · 📍 {entry.place}</p>
+                        </div>
+                        <span className="text-[10px] text-white/30 flex items-center gap-1 flex-shrink-0">
+                          <Clock className="w-3.5 h-3.5" /> {new Date(entry.createdAt).toLocaleTimeString()}
+                        </span>
+                      </div>
 
-                    <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-white/5 text-xs text-white/60">
-                      <div className="flex items-center gap-1.5">
-                        <Heart className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
-                        <span>Color: <strong className="text-white">{entry.favoriteColor || '—'}</strong></span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Tag className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
-                        <span>Hobby: <strong className="text-white">{entry.hobby || '—'}</strong></span>
+                      <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-white/5 text-xs text-white/60">
+                        <div className="flex items-center gap-1.5">
+                          <Heart className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                          <span>Color: <strong className="text-white">{entry.favoriteColor || '—'}</strong></span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                          <span>Hobby: <strong className="text-white">{entry.hobby || '—'}</strong></span>
+                        </div>
                       </div>
                     </div>
                   </div>
