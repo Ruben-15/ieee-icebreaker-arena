@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useActivity } from '@/context/ActivityContext';
-import { createEntry, updateEntry, getParticipantEntries, getParticipant, updateParticipant } from '@/firebase/firestore';
+import { createEntry, updateEntry, getParticipantEntries, getParticipant, updateParticipant, subscribeParticipants } from '@/firebase/firestore';
 import { Entry, Participant } from '@/types';
 import { Zap, Clock, Users, LogOut, Loader2, Edit3, Save, X, PlusCircle, Eye, Camera, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -32,6 +32,11 @@ export default function ActivityPage() {
   const [selfieDataUrl, setSelfieDataUrl] = useState<string | null>(null);
   const selfieInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Autocomplete Suggestions State
+  const [allParticipants, setAllParticipants] = useState<Participant[]>([]);
+  const [suggestions, setSuggestions] = useState<Participant[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Edit State
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
@@ -77,6 +82,29 @@ export default function ActivityPage() {
     }
     loadData();
   }, [participant]);
+
+  // Subscribe to all participants for real-time autocomplete
+  useEffect(() => {
+    if (!participant) return;
+    const unsub = subscribeParticipants((list) => {
+      // Filter out self so participant doesn't autocomplete themselves
+      setAllParticipants(list.filter(p => p.uid !== participant.uid));
+    });
+    return () => unsub();
+  }, [participant]);
+
+  const handleNameChange = (val: string) => {
+    setPersonName(val);
+    if (!val.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    // Filter matching participants
+    const filtered = allParticipants.filter(p =>
+      p.name.toLowerCase().includes(val.toLowerCase())
+    );
+    setSuggestions(filtered);
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -268,16 +296,43 @@ export default function ActivityPage() {
             <p className="text-[11px] sm:text-xs text-white/40 mb-4 sm:mb-6">Ask them these questions and write their answers here!</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+              <div className="relative">
                 <label className="block text-[11px] text-white/50 mb-1.5 font-medium uppercase tracking-wider">Person Name *</label>
                 <input
                   type="text"
                   required
                   value={personName}
-                  onChange={e => setPersonName(e.target.value)}
+                  onChange={e => handleNameChange(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => {
+                    // Delay hiding to allow onMouseDown to register on suggestions
+                    setTimeout(() => setShowSuggestions(false), 200);
+                  }}
                   placeholder="Their name"
                   className="input-glass"
+                  autoComplete="off"
                 />
+
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-[#0a0f1e]/95 backdrop-blur-md border border-white/10 rounded-xl z-30 shadow-2xl smooth-scroll">
+                    {suggestions.map(p => (
+                      <button
+                        key={p.uid}
+                        type="button"
+                        onMouseDown={() => {
+                          setPersonName(p.name);
+                          setPersonDepartment(p.department);
+                          setSuggestions([]);
+                          setShowSuggestions(false);
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-xs hover:bg-purple-500/20 text-white/80 hover:text-white transition-colors border-b border-white/5 last:border-b-0 flex items-center justify-between"
+                      >
+                        <span className="font-semibold">{p.name}</span>
+                        <span className="text-[10px] text-white/40">{p.department}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
