@@ -18,6 +18,7 @@ export default function ParticipantDetailPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [lightboxImage, setLightboxImage] = useState<{ url: string; name: string } | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -92,10 +93,17 @@ export default function ParticipantDetailPage() {
             ) : (
               <div className="space-y-4">
                 {entries.map((entry) => (
-                  <div key={entry.id} className="p-4 glass rounded-xl border border-white/5 flex flex-col sm:flex-row gap-4 relative overflow-hidden">
+                  <div
+                    key={entry.id}
+                    onClick={() => setSelectedEntry(entry)}
+                    className="p-4 glass rounded-xl border border-white/5 flex flex-col sm:flex-row gap-4 relative overflow-hidden cursor-pointer hover:bg-white/8 hover:border-white/10 transition-all duration-200"
+                  >
                     {entry.selfieUrl && (
                       <div
-                        onClick={() => setLightboxImage({ url: entry.selfieUrl!, name: entry.personName })}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLightboxImage({ url: entry.selfieUrl!, name: entry.personName });
+                        }}
                         className="w-full sm:w-20 h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0 cursor-zoom-in hover:opacity-90 transition-opacity"
                         title="Click to zoom / download"
                       >
@@ -123,6 +131,12 @@ export default function ParticipantDetailPage() {
                           <span>Hobby: <strong className="text-white">{entry.hobby || '—'}</strong></span>
                         </div>
                       </div>
+
+                      {entry.notes && (
+                        <div className="mt-2 pt-2 border-t border-white/5 text-xs text-white/50 truncate">
+                          Notes: <span className="text-white/80 font-medium">{entry.notes}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -168,6 +182,82 @@ export default function ParticipantDetailPage() {
               >
                 <Download className="w-4 h-4" /> Download Photo
               </a>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Entry Detail Modal */}
+      <AnimatePresence>
+        {selectedEntry && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-sm text-white">
+            <motion.div
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedEntry(null)}
+            />
+
+            <motion.div
+              className="relative z-10 w-full max-w-sm glass-card p-6 border border-white/10"
+              initial={{ scale: 0.95, opacity: 0, y: 35 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 35 }}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-black flex items-center gap-2">
+                  <Users className="w-5 h-5 text-purple-400" /> Connection Details
+                </h3>
+                <button onClick={() => setSelectedEntry(null)} className="p-1 text-white/40 hover:text-white">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 text-sm max-h-[70vh] overflow-y-auto smooth-scroll pr-1">
+                {selectedEntry.selfieUrl && (
+                  <div
+                    onClick={() => setLightboxImage({ url: selectedEntry.selfieUrl!, name: selectedEntry.personName })}
+                    className="rounded-xl overflow-hidden border border-white/10 cursor-zoom-in hover:opacity-90 transition-opacity"
+                    title="Click to enlarge"
+                  >
+                    <img src={selectedEntry.selfieUrl} alt="Selfie" className="w-full h-40 object-cover" />
+                  </div>
+                )}
+                {[
+                  ['Name', selectedEntry.personName],
+                  ['Department', selectedEntry.personDepartment],
+                  ['Place Met', selectedEntry.place],
+                  ['Favourite Colour', selectedEntry.favoriteColor],
+                  ['Hobby', selectedEntry.hobby],
+                  ['Notes', selectedEntry.notes],
+                  ['Logged At', new Date(selectedEntry.createdAt).toLocaleString()]
+                ].map(([label, val]) =>
+                  val ? (
+                    <div key={label} className="glass rounded-xl px-4 py-3">
+                      <p className="text-[10px] text-white/40 uppercase tracking-wider font-medium mb-0.5">{label}</p>
+                      <p className="font-semibold text-white/90">{val}</p>
+                    </div>
+                  ) : null
+                )}
+                <div className="flex gap-2 pt-2">
+                  {selectedEntry.selfieUrl && (
+                    <a
+                      href={selectedEntry.selfieUrl}
+                      download={`selfie-${selectedEntry.personName.replace(/\s+/g, '-').toLowerCase()}.jpg`}
+                      className="btn-primary flex-1 py-2.5 rounded-xl text-xs font-semibold text-center flex items-center justify-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Download
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setSelectedEntry(null)}
+                    className="btn-glass flex-1 py-2.5 rounded-xl text-xs font-semibold"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
