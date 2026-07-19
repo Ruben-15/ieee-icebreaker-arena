@@ -536,13 +536,9 @@ export default function ActivityPage() {
                     onClick={() => handleEditClick(entry)}
                     className="w-full flex items-center gap-3 p-3 glass rounded-xl text-xs hover:bg-white/8 transition-all duration-200 text-left group"
                   >
-                    {entry.selfieUrl ? (
-                      <img src={entry.selfieUrl} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/10 flex-shrink-0" />
-                    ) : (
-                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-white/30 font-bold flex-shrink-0 uppercase">
-                        {entry.personName.trim() ? entry.personName.trim().slice(0, 1) : '?'}
-                      </div>
-                    )}
+                    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-white/30 font-bold flex-shrink-0 uppercase">
+                      {entry.personName.trim() ? entry.personName.trim().slice(0, 1) : '?'}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-white/90 truncate">{entry.personName}</p>
                       <p className="text-[10px] text-white/40 truncate">{entry.personDepartment} · 📍 {entry.place}</p>
@@ -596,15 +592,6 @@ export default function ActivityPage() {
               {/* READ-ONLY VIEW when paused/ended */}
               {(!isActive || isEnded) ? (
                 <div className="space-y-3 text-sm max-h-[70vh] overflow-y-auto smooth-scroll">
-                  {editingEntry.selfieUrl && (
-                    <div
-                      onClick={() => setLightboxImage({ url: editingEntry.selfieUrl!, name: editingEntry.personName })}
-                      className="rounded-xl overflow-hidden border border-white/10 cursor-zoom-in hover:opacity-90 transition-opacity"
-                      title="Click to zoom / download"
-                    >
-                      <img src={editingEntry.selfieUrl} alt="Selfie" className="w-full h-40 object-cover" />
-                    </div>
-                  )}
                   {[['Name', editingEntry.personName], ['Department', editingEntry.personDepartment], ['Place Met', editingEntry.place], ['Favourite Colour', editingEntry.favoriteColor], ['Hobby', editingEntry.hobby], ['Notes', editingEntry.notes]].map(([label, val]) =>
                     val ? (
                       <div key={label} className="glass rounded-xl px-4 py-3">
@@ -625,15 +612,6 @@ export default function ActivityPage() {
               ) : (
                 /* EDIT FORM when activity is active */
                 <form onSubmit={handleSaveEdit} className="space-y-3 text-sm max-h-[70vh] overflow-y-auto smooth-scroll pr-1">
-                  {editingEntry.selfieUrl && (
-                    <div
-                      onClick={() => setLightboxImage({ url: editingEntry.selfieUrl!, name: editingEntry.personName })}
-                      className="rounded-xl overflow-hidden border border-white/10 mb-3 cursor-zoom-in hover:opacity-90 transition-opacity"
-                      title="Click to zoom / download"
-                    >
-                      <img src={editingEntry.selfieUrl} alt="Selfie" className="w-full h-40 object-cover" />
-                    </div>
-                  )}
                   <div>
                     <label className="block text-[10px] text-white/50 mb-1.5 uppercase font-medium">Name</label>
                     <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} className="input-glass" />
@@ -745,47 +723,6 @@ export default function ActivityPage() {
                   </button>
                 </div>
               </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Lightbox Modal */}
-      <AnimatePresence>
-        {lightboxImage && (
-          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4">
-            <motion.div
-              className="absolute inset-0 bg-black/90 backdrop-blur-md"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setLightboxImage(null)}
-            />
-
-            <motion.div
-              className="relative z-10 max-w-lg w-full flex flex-col items-center gap-4"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-            >
-              <button
-                onClick={() => setLightboxImage(null)}
-                className="absolute -top-12 right-0 p-2 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="w-full rounded-2xl overflow-hidden border border-white/15 bg-black shadow-2xl">
-                <img src={lightboxImage.url} alt="Enlarged Selfie" className="w-full h-auto max-h-[70vh] object-contain mx-auto" />
-              </div>
-
-              <a
-                href={lightboxImage.url}
-                download={`selfie-${lightboxImage.name.replace(/\s+/g, '-').toLowerCase()}.jpg`}
-                className="btn-primary py-3 px-6 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-purple-500/20"
-              >
-                <Download className="w-4 h-4" /> Download Photo
-              </a>
             </motion.div>
           </div>
         )}
